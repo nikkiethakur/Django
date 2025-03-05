@@ -14,6 +14,8 @@ from django.conf import settings
 
 # from storages.backends.s3boto3 import S3Boto3Storage
 # Create your views here.
+region_name = getattr(settings, "AWS_REGION", "us-east-1")
+
 
 class DetailsViews(APIView):
     authentication_classes = [JWTAuthentication]
@@ -94,6 +96,46 @@ class S3BucketView(APIView):
                 "Content": Content
             })
 
-# class MediaStorage(S3Boto3Storage):
-#     location = settings.MEDIAFILES_LOCATION
-#     file_overwrite = False
+
+class EC2InstanceView(APIView):
+    def get(self, request):
+        ec2_client = boto3.client(
+            'ec2',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_EC2_REGION_NAME
+        )
+
+        # Get all available AWS regions
+        regions = [region['RegionName'] for region in ec2_client.describe_regions()['Regions']]
+        
+        ec2_instances = {}
+
+        for region in regions:
+            ec2 = boto3.client(
+                'ec2',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=region
+            )
+
+            # Get running instances in this region
+            response = ec2.describe_instances()
+
+            instances = []
+            for reservation in response['Reservations']:
+                for instance in reservation['Instances']:
+                    instances.append({
+                        "InstanceId": instance["InstanceId"],
+                        "State": instance["State"]["Name"],
+                        "Type": instance["InstanceType"],
+                        "PublicIP": instance.get("PublicIpAddress", "N/A"),
+                        "PrivateIP": instance.get("PrivateIpAddress", "N/A"),
+                        "LaunchTime": str(instance["LaunchTime"])
+                    })
+
+            # Only add non-empty regions
+            if instances:
+                ec2_instances[region] = instances
+
+        return Response({"EC2_Instances": ec2_instances})

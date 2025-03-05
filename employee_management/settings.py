@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'django-insecure-*#86n%2klh&%iby^5g_(248dyty0@-02x*xq#tkoaqoas23e!m'
+SECRET_KEY = 'django-insecure-*#86n%2klh&%iby^5g_(248dyty0@-02x*xq#tkoaqoas23e!m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -154,5 +154,8 @@ load_dotenv()
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+# AWS_EC2_INSTANCE_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+AWS_EC2_REGION_NAME = os.getenv("AWS_REGION")
+
 AWS_S3_FILE_OVERWRITE = False
